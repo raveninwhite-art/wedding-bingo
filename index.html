@@ -13,6 +13,7 @@
             --off-black: #2b2b2b;
             --cream-bg: #fffcf5;
             --gold-accent: #c5a059;
+            --highlight-yellow: #ffeb3b; /* 新增標記黃色 */
         }
 
         body {
@@ -81,7 +82,7 @@
             color: var(--off-black);
             cursor: pointer;
             position: relative;
-            transition: background-color 0.2s;
+            transition: background-color 0.3s ease;
         }
 
         /* 平板或大螢幕的字體上限 */
@@ -102,11 +103,30 @@
             /* 加上輕微的不規則旋轉，增加手繪感 */
             transform: rotate(-5deg);
             animation: markPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
         }
 
         @keyframes markPop {
             0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
             100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+        }
+
+        /* 連線發光特效 */
+        .bingo-cell.line-highlight {
+            background-color: var(--highlight-yellow);
+            animation: highlightPop 0.4s ease-out;
+            z-index: 1;
+        }
+
+        @keyframes highlightPop {
+            0% { transform: scale(1); background-color: white; }
+            50% { transform: scale(1.1); background-color: var(--gold-accent); z-index: 5; }
+            100% { transform: scale(1); background-color: var(--highlight-yellow); }
+        }
+
+        /* 讓畫圈在黃色背景上更清楚 */
+        .bingo-cell.line-highlight.marked::after {
+            background-color: transparent;
         }
 
         /* 按鈕設計 */
@@ -168,9 +188,17 @@
             board.innerHTML = ''; // 清空原有內容
             hasWon = false; // 重置中獎狀態
 
-            // 產生 1-25 陣列並打亂
-            let nums = Array.from({length: 25}, (_, i) => i + 1);
-            nums.sort(() => Math.random() - 0.5); 
+            // 產生 1-75 的數字陣列
+            let allNums = Array.from({length: 75}, (_, i) => i + 1);
+            
+            // 將 1-75 的陣列進行隨機洗牌
+            for (let i = allNums.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allNums[i], allNums[j]] = [allNums[j], allNums[i]];
+            }
+
+            // 擷取洗牌後的前 25 個數字
+            let nums = allNums.slice(0, 25);
 
             // 生成 25 個格子
             nums.forEach((num, index) => {
@@ -189,28 +217,31 @@
             });
         }
 
-        // 檢查是否達成 3 條連線
+        // 檢查是否有連線，並顯示特效與中獎提示
         function checkBingo() {
-            if (hasWon) return; // 如果已經中獎過就不再一直彈通知
-
             const cells = document.querySelectorAll('.bingo-cell');
-            let completedLines = 0;
+            let completedLinesCount = 0;
+
+            // 每次檢查前，先清除舊的連線高亮特效
+            cells.forEach(cell => cell.classList.remove('line-highlight'));
 
             // 檢查每一條可能的連線
             winningLines.forEach(line => {
                 // 如果這條線上的 5 個格子都有 'marked' class
                 if (line.every(index => cells[index].classList.contains('marked'))) {
-                    completedLines++;
+                    completedLinesCount++;
+                    // 為這 5 個格子加上發光特效 class
+                    line.forEach(index => cells[index].classList.add('line-highlight'));
                 }
             });
 
-            // 達成 3 條線
-            if (completedLines >= 3) {
+            // 達成 3 條線，且尚未跳過中獎提示
+            if (completedLinesCount >= 3 && !hasWon) {
                 hasWon = true;
-                // 稍微延遲彈出視窗，讓畫圈的動畫能先跑完
+                // 稍微延遲彈出視窗，讓畫圈與發光的動畫能先跑完
                 setTimeout(() => {
                     alert("🎉 恭喜！你已經連成 3 條線了！🎉\n請立刻舉手或大聲呼叫主持人！");
-                }, 300);
+                }, 500);
             }
         }
 
@@ -219,6 +250,7 @@
             if(confirm("確定要清除卡片上所有的畫圈標記嗎？")) {
                 document.querySelectorAll('.bingo-cell').forEach(cell => {
                     cell.classList.remove('marked');
+                    cell.classList.remove('line-highlight');
                 });
                 hasWon = false;
             }
