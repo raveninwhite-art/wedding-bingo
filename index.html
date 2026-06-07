@@ -52,6 +52,7 @@
             padding: 15px;
             border: 2px dashed var(--gold-accent);
             border-radius: 5px;
+            text-align: left; /* 讓較長的文字靠左對齊更易讀 */
         }
         .highlight {
             color: var(--japan-red);
@@ -160,8 +161,8 @@
     <div class="header-title">WEDDING BINGO</div>
     
     <div class="instructions">
-        當台上抽出你的號碼，且您符合畫面上的敘述／完成畫面上的任務，請<span class="highlight">直接點擊下方數字畫圈</span>！<br>
-        最先連成 <span class="highlight">3 條線</span> 的前三名將獲得禮物！
+        當台上抽出您的號碼，且您符合畫面上的條件／完成畫面上的任務，請<span class="highlight">直接點擊下方數字畫圈</span>！<br><br>
+        最先連成 <span class="highlight">2 條線</span> 的前三名將獲得禮物！
     </div>
 
     <!-- 賓果盤會由 JavaScript 自動生成在這裡 -->
@@ -235,12 +236,12 @@
                 }
             });
 
-            // 達成 3 條線，且尚未跳過中獎提示
-            if (completedLinesCount >= 3 && !hasWon) {
+            // 達成 2 條線，且尚未跳過中獎提示
+            if (completedLinesCount >= 2 && !hasWon) {
                 hasWon = true;
                 // 稍微延遲彈出視窗，讓畫圈與發光的動畫能先跑完
                 setTimeout(() => {
-                    alert("🎉 恭喜！你已經連成 3 條線了！🎉\n請立刻舉手或大聲呼叫主持人！");
+                    alert("🎉 恭喜！你已經連成 2 條線了！🎉\n請立刻舉手或大聲呼叫主持人！");
                 }, 500);
             }
         }
