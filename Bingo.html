@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEDDING BINGO！婚禮賓果大全集</title>
+    <style>
+        /* ==============================
+           全域樣式：日系雜誌底蘊 (無捲動設計)
+           ============================== */
+        :root {
+            --japan-red: #d9333f;
+            --off-black: #2b2b2b;
+            --cream-bg: #fffcf5;
+            --gold-accent: #c5a059;
+            --highlight-yellow: #ffeb3b;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--cream-bg);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23e0dcd0' fill-opacity='0.15' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+            text-align: center;
+            margin: 0;
+            padding: 2vh 2vw; 
+            color: var(--off-black);
+            
+            /* 強制鎖定螢幕不捲動 */
+            height: 100vh; 
+            box-sizing: border-box;
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 標題設計：雜誌封面風 */
+        h1.magazine-title {
+            font-size: 4.5vh; 
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--off-black);
+            margin: 0 0 2vh 0; 
+            padding: 1vh 2vw;
+            display: inline-block;
+            position: relative;
+            border-top: 0.6vh solid var(--off-black);
+            border-bottom: 0.6vh solid var(--off-black);
+        }
+        h1.magazine-title::before, h1.magazine-title::after {
+            content: "SPECIAL";
+            font-size: 0.3em;
+            position: absolute;
+            background: var(--japan-red);
+            color: white;
+            padding: 0.2vh 0.8vw;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        h1.magazine-title::before { top: -2vh; left: 10px; }
+        h1.magazine-title::after { bottom: -2vh; right: 10px; content: "GAME ISSUE"; }
+
+        /* ==============================
+           畫面切換動畫
+           ============================== */
+        #rules-screen, #game-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(2vh);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            width: 100%;
+            max-width: 1100px; 
+        }
+        #rules-screen.active, #game-screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==============================
+           共用區塊樣式
+           ============================== */
+        .magazine-layout-box {
+            background: white;
+            border: 0.6vh solid var(--off-black);
+            border-radius: 0;
+            padding: 4vh 4vw;
+            margin-bottom: 2vh;
+            box-shadow: 0.8vh 0.8vh 0 var(--gold-accent);
+            text-align: left;
+            position: relative;
+            width: 90%;
+            box-sizing: border-box;
+        }
+        
+        /* ==============================
+           針對【規則畫面】的空間特調
+           ============================== */
+        .rule-box {
+            padding: 2.5vh 4vw 3vh 4vw; 
+        }
+
+        .rule-header {
+            background-color: var(--japan-red);
+            color: white;
+            display: inline-block;
+            padding: 1vh 2vw;
+            font-size: 3.5vh; 
+            font-weight: bold;
+            transform: rotate(-2deg);
+            margin-left: -5vw;
+            margin-top: -2vh;
+            margin-bottom: 2vh;
+            box-shadow: 0.4vh 0.4vh 0 var(--off-black);
+        }
+
+        .rule-box ol {
+            font-size: 3.2vh; 
+            line-height: 1.7; 
+            padding-left: 3vw;
+            margin: 0 0 1vh 0;
+        }
+        .rule-box li {
+            margin-bottom: 1.5vh;
+            position: relative;
+        }
+        
+        .highlight-mark {
+            position: relative;
+            font-weight: bold;
+            z-index: 1;
+        }
+        .highlight-mark::after {
+            content: "";
+            position: absolute;
+            bottom: 0.2vh;
+            left: -0.2vw;
+            width: 100%;
+            height: 1.6vh; 
+            background-color: var(--highlight-yellow);
+            z-index: -1;
+            transform: rotate(-1deg);
+        }
+
+        /* QR Code 與 範例圖 的並排版面 */
+        .visual-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4vw; 
+            margin-top: 1vh;
+        }
+        
+        .svg-container, .qr-container {
+            text-align: center;
+            padding: 1.5vh;
+            border: 0.3vh dashed var(--gold-accent);
+            background-color: #fffefb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .svg-container svg, .qr-container img {
+            height: 22vh; 
+            width: auto;
+        }
+
+        .qr-container img {
+            border: 2px solid var(--off-black);
+            padding: 5px;
+            background: white;
+        }
+
+        .svg-caption {
+            font-size: 2vh; 
+            color: #666;
+            margin-top: 1vh;
+            font-weight: bold;
+        }
+        
+        .qr-caption {
+            font-size: 2vh;
+            color: var(--japan-red);
+            margin-top: 1vh;
+            font-weight: bold;
+            background: var(--highlight-yellow);
+            padding: 2px 8px;
+            transform: rotate(-2deg);
+            border: 1px solid var(--off-black);
+        }
+
+        /* ==============================
+           遊戲畫面樣式
+           ============================== */
+        #game-screen .magazine-layout-box {
+            padding: 4vh 2vw;
+            text-align: center;
+            width: 100%;
+        }
+
+        #number-display-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1vh;
+        }
+        #number-placeholder, #number-display {
+            font-size: 28vh; 
+            font-weight: 900;
+            line-height: 1;
+            margin: 0;
+            min-height: 1em;
+        }
+        #number-placeholder {
+            color: #e0dcd0;
+        }
+        #number-display {
+            color: var(--japan-red);
+            text-shadow: 0.4vh 0.4vh 0 var(--off-black), 0.8vh 0.8vh 0 var(--gold-accent);
+            -webkit-text-stroke: 0.2vh var(--off-black);
+            display: none;
+        }
+        #number-display.pop-in {
+            display: block;
+            animation: numPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes numPop {
+            0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+            70% { transform: scale(1.1) rotate(5deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        #text-display-box {
+            margin-bottom: 3vh;
+            min-height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4vw;
+        }
+        #text-display {
+            font-size: 4vh;
+            font-weight: bold;
+            color: var(--off-black);
+            line-height: 1.4;
+            background-color: white;
+            padding: 1.5vh 3vw;
+            border: 0.3vh solid var(--off-black);
+            position: relative;
+            transform: rotate(0.5deg);
+        }
+        #text-display::before {
+            content: "";
+            position: absolute;
+            top: -1vh;
+            left: 2vw;
+            width: 6vw;
+            height: 2.5vh;
+            background-color: rgba(197, 160, 89, 0.5);
+            transform: rotate(-10deg);
+        }
+
+        #history {
+            margin-top: 3vh;
+            border-top: 0.3vh solid var(--off-black);
+            padding-top: 2.5vh;
+            position: relative;
+        }
+        #history-title {
+            font-size: 1.8vh;
+            font-weight: bold;
+            background-color: var(--off-black);
+            color: white;
+            padding: 0.5vh 1.5vw;
+            position: absolute;
+            top: -1.5vh;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #history-list {
+            font-size: 2.2vh;
+            color: #555;
+            letter-spacing: 2px;
+            line-height: 1.5;
+            font-weight: bold;
+        }
+
+        /* ==============================
+           按鈕設計
+           ============================== */
+        button.magazine-btn {
+            font-size: 3.5vh; 
+            font-weight: 900;
+            padding: 1.5vh 5vw;
+            background-color: var(--japan-red);
+            color: white;
+            border: 0.4vh solid var(--off-black);
+            border-radius: 0;
+            cursor: pointer;
+            box-shadow: 0.6vh 0.6vh 0 var(--off-black);
+            transition: all 0.2s ease;
+            letter-spacing: 2px;
+        }
+        button.magazine-btn:hover {
+            background-color: var(--off-black);
+            box-shadow: 0 0 0 var(--off-black);
+            transform: translate(0.6vh, 0.6vh);
+        }
+        button.magazine-btn:active {
+            transform: translate(0.8vh, 0.8vh);
+        }
+        button.magazine-btn:disabled {
+            background-color: #ccc;
+            color: #888;
+            border-color: #999;
+            box-shadow: 0.3vh 0.3vh 0 #999;
+            cursor: not-allowed;
+            transform: translate(0.3vh, 0.3vh);
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="magazine-title">婚禮賓果大全集</h1>
+
+    <div id="rules-screen" class="active">
+        <div class="magazine-layout-box rule-box">
+            <div class="rule-header">遊戲規則</div>
+            <ol>
+                <li>請先用手機掃描下方QR Code，取得您專屬的賓果卡！</li>
+                <li>每次畫面上抽出號碼，若您賓果卡上有這個數字，且您符合畫面上的<span class="highlight-mark">條件</span>或完成畫面上的<span class="highlight-mark">任務</span>，請將賓果卡上該數字畫圈！</li>
+                <li>只要圈起的數字連成 <span class="highlight-mark">2 條線</span>（直線、橫線或斜線都可以，每條線中各圈起五個數字），就完成賓果！</li>
+                <li>請您馬上舉手告訴主持人，<span class="highlight-mark">前3名</span>可以獲得精美小禮物！</li>
+            </ol>
+            
+            <div class="visual-container">
+                <!-- QR Code 區塊 -->
+                <div class="qr-container">
+                    <!-- 使用您提供的 QR Code 圖片 -->
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAQAElEQVR4Aezc7XrbOK8F0O5z//fc885X2zixY9gCRYprnmkbWzAELrjd//R/P/1HgAABAgQILC/wfz/8R4AAAQIECCwv0Bvoy/M4AAECBAgQWENAoK+xJ1MSIECAAIGHAisH+sODuUiAAAECBHYSEOg7bdtZCRAgQOCyAgL93mq9T4AAAQIEFhIQ6Asty6gECBAgQOCegEC/J9P7vu4ECBAgQOBQAYF+KKdmBAgQIEDgHAGBfo577111J0CAAIHtBAT6dit3YAIECBC4ooBAv+JWe8+kOwECBAhMKCDQJ1yKkQgQIECAQFVAoFfF1PcK6E6AAAECLwkI9JfYfIgAAQIECMwlINDn2odpegV0J0CAwGUFBPplV+tgBAgQILCTgEDfadvO2iugOwECBE4UEOgn4rs1AQIECBA4SkCgHyWpD4FeAd0JECDwUECgP+RxkQABAgQIrCEg0NfYkykJ9AroToDA8gICffkVOgABAgQIEPjxQ6D7FhAg0C2gPwECAwQE+gBktyBAgAABAt0CAr1bWH8CBHoFdCdA4G8Bgf43g98IECBAgMDaAsMDPcmPxK/kGIPur19Sm7N7nmr/ZK75k9o8SW/96p7V+av1SZb+92q38ya9f1+SWv+q/7v1wwP93YF9ngABAgQIEPgsINA/m3iHAAECYwTchcCBAgL9QEytCBAgQIDAWQIC/Sx59yVAgECvgO6bCQj0zRbuuAQIECBwTQGBfs29OhUBAgR6BXSfTkCgT7cSAxEgQIAAgbqAQK+b+QQBAgQI9Aro/oKAQH8BzUcIECBAgMBsAgJ9to2YhwABAgR6BS7aXaBfdLGORYAAAQJ7CUwf6D9//vyx06/ur1/S+yzipNY/6a2veiZzzdP93U9q5+327O6f1M7b7d/dv+pZre+ef7b+T/qcVjZ9oJ8m48YECBAgQGAhAYG+0LKMSoAAAQKbCzw4vkB/gOMSAQIECBBYRUCgr7IpcxIgQIAAgQcCBwT6g+4uESBAgAABAkMEBPoQZjchQIAAAQK9AtMHeu/xdSdAgAABAtcQEOjX2KNTECBAgMDmApsH+ubbd3wCBAgQuIyAQL/MKh2EAAECBHYWEOiN29eaAAECBAiMErhcoCe1ZzUnvfWjFtl1n+qzlLvm+K9vdZ5q/X/38efXAt2eSe3v49dT3n+3On9SmyeZq/6+xDlXEj6d8pcL9E6suXqbhgABAgQI/BYQ6L8t/ESAAAECBJYVEOjLrq53cN0JECBAYC0Bgb7WvkxLgAABAgS+FBDoX7J4s1dAdwIECBA4WkCgHy2qHwECBAgQOEFAoJ+A7pa9AroTIEBgRwGBvuPWnZkAAQIELicg0C+3UgfqFdCdAAECcwoI9Dn3YioCBAgQIFASEOglLsUEegV0J0CAwKsCAv1VOZ87RSCpPQu6OmT1Wd/V+uo81fqk5jPb/NXzVudPen2q83Sft9pf/doCAn3t/ZmeQEFAKQECVxYQ6FferrMRIECAwDYCAn2bVTsogV4B3QkQOFdAoJ/r7+4ECBAgQOAQAYF+CKMmBAj0CuhOgMB3AgL9OyHXCRAgQIDAAgICfYElGZEAgV4B3QlcQUCgX2GLzkCAAAEC2wsI9O2/AgAIEOgV0J3AGAGBPsbZXQgQIECAQKuAQG/l1ZwAAQK9AroT+E9AoP8n4c8lBLqflZ3UnvVdRavOn/TOk9T6J7X66nmrnrPVJzWf6vxJb//qPOrnEhDoc+3DNAQIEJhIwCgrCQj0lbZlVgIECBAgcEdAoN+B8TYBAgQI9ArofqyAQD/WUzcCBAgQIHCKgEA/hd1NCRAgQKBXYL/uAn2/nTsxAQIECFxQQKBfcKmORIAAAQK9AjN2F+gzbsVMBAgQIECgKCDQi2DKCRAgQIBAr8Br3QX6a24+RYAAAQIEphIQ6FOtwzAECBAgQOA1gWcD/bXuJ3yq+uzo7voTCA69ZVJ7dvRsnknv/Emt/6HLOaDZbPuqzlMl6O5fnadav9v81fNW66v+s9dfLtBnBzcfAQIECBDoEJgj0DtOpicBAgQIENhIQKBvtGxHJUCAAIHrCuwQ6NfdnpMRIECAAIF/BQT6vxD+IECAAAECKwsI9He35/MECBAgQGACAYE+wRKMQIAAAQIE3hUQ6O8K9n5edwIECBAg8JSAQH+KSREBAgQIEJhbQKDPvZ/e6XQnQIAAgcsICPTLrNJBCBAgQGBngekDPak9KztZu362L2P12cjJL/8fyfc/V8+bfN8z+V3TPf9s/aue1frkt23y/c+79a+et/v7U52nWp98/x1IrlNT9RldP32gjwZxPwIECBAgsKKAQF9xa2b+8YMBAQIECHwQEOgfOLwgQIAAAQJrCgj0Nfdm6l4B3QkQILCcgEBfbmUGJkCAAAECnwUE+mcT7xDoFdCdAAECDQICvQFVSwIECBAgMFpAoI8Wdz8CvQK6EyCwqYBA33Txjk2AAAEC1xIQ6Nfap9MQ6BXQnQCBaQUE+rSrMRgBAgQIEHheYHigV59drP7nj0cGz6/6tcqk9hzmR7N+da061Vc9Hr3X3T+p+VTnqdY/svjqWrV/c325fTKXf/kAxQ98tcNH7xXbP/y35tF9XPv63+mq/7v1wwP93YF9ngABAgQIEPgsINA/m3iHAIErCjgTgYsLCPSLL9jxCBAgQGAPAYG+x56dkgCBXgHdCZwuINBPX4EBCBAgQIDA+wIC/X1DHQgQINAroDuBJwQE+hNISggQIECAwOwCAn32DZmPAAECvQK6X0RAoF9kkY5BgAABAnsLCPS99+/0BAgQ6BXQfZiAQB9G7UYECBAgQKBPYHigJ2s/ezmpzZ/01le/Gt3PXK7OU61Pej2TWv/ZPJPa/EmtvnrepNa/+n2ozlOtr84zW31S80+Wq/+RjJt5tv3ezjM80G8H8JoAAQIECBB4X0Cgv2+oAwECBAhcUWCxMwn0xRZmXAIECBAg8JWAQP9KxXsECBAgQKBX4PDuAv1wUg0JECBAgMB4AYE+3twdCRAgQIDA4QIfAv3w7hoSIECAAAECQwQE+hBmNyFAgAABAr0CAwO99yC6EyBAgACBnQUE+s7bd3YCBAgQuIzAZQL9MhtxEAIECBAg8IKAQC+idT8Luto/Gfcc4+T8e1V9iustlyc1k+oNklr/qk+1vjp/tX+1Pqn5JLX67vNW+ydzzV/dV/W86msCAv0pL0UECBAgQGBuAYE+935MR4AAAQIEnhIQ6E8x9RbpToAAAQIE3hUQ6O8K+jwBAgQIEJhAQKBPsITeEXQnQIAAgR0EBPoOW3ZGAgQIELi8gEC//Ip7D6g7AQIECMwhINDn2IMpCBAgQIDAWwIC/S0+H+4V0J0AAQIEnhUQ6M9KqSNAgAABAhMLCPSJl2O0XgHdCRAgcCWB4YG++rN/k95nKSe9/av+3fXVv0zJ2j5Jbf6qf9WzWp/U5q/2r9Z3+yS18ya99d3nrfpX62ebvzpPUttv1efd+uGB/u7APk9gDQFTEiBAYKyAQB/r7W4ECBAgQKBFQKC3sGpKoFdAdwIECNwKCPRbEa8JECBAgMCCAgJ9waUZmUCvgO4ECKwoINBX3JqZCRAgQIDAjYBAvwHxkgCBXgHdCRDoERDoPa66EiBAgACBoQICfSi3mxEg0CugO4F9BQT6vrt3cgIECBC4kIBAv9AyHYUAgV4B3QnMLDB9oCdzPTu3+uzf6vKr/av1Sc0zqdVXz1utr5632j+pnTep1VfnT2r9k1p91adan9TmSXrrq/7V81b7V+uTmk91/t3qk5pndV+jPacP9NEg7keAAIFzBNyVwHsCAv09P58mQIAAAQJTCAj0KdZgCAIECPQK6H59AYF+/R07IQECBAhsICDQN1iyIxIgQKBXQPcZBAT6DFswAwECBAgQeFNAoL8J6OMECBAg0Cug+3MCAv05J1UECBAgQGBqAYE+9XoMR4AAAQK9AtfpLtCvs0snIUCAAIGNBQT6xst3dAIECBDoFRjZfXigJ7Vn53ZjJGvPk9Tmn+1ZxNV5krXPm9Tm7/7+d/ev7rd7nmQu/6Q2D89jvyGzeb57uuGB/u7APk+AAAECBAj8JfDxl0D/6OEVAQIECBBYUkCgL7k2QxMgQIAAgY8CRwf6x+5eESBAgAABAkMEBPoQZjchQIAAAQK9AmsFeq+F7gQIECBAYFkBgb7s6gxOgAABAgR+Cwj03xZ+IkCAAAECywoI9GVXZ3ACBAgQIPBbQKD/tuj9SXcCBAgQINAoINAbcbUmQIAAAQKjBKYP9NmetZvUnr1cXWT1vP/W/3j2z6R3/up5k7nmqc7/rPusddXzzlZfda3OX+2f1L7Ps/Wv+lTrk16f6jxXq58+0K8G7jwECBAgQKBDQKB3qF6tp/MQIECAwPQCAn36FRmQAAECBAh8LyDQvzdS0SugOwECBAgcICDQD0DUggABAgQInC0g0M/egPv3CuhOgACBTQQE+iaLdkwCBAgQuLaAQL/2fp2uV0B3AgQITCMg0KdZhUEIECBAgMDrAgL9dTufJNAroDsBAgQKAgK9gKWUAAECBAjMKjA80KvPLq7CJWs/KzipzZ/U6rv9q/uqzlOtr87TXZ/U9tU4z9+tk9o8Vf+k1v/vofx2mEAyl3/1+3MYxJ1GSc0nqdXfuW3b28MDve0kGhMgQIAAgY0FBPrGy3d0Am0CGhMgMFxAoA8nd0MCBAgQIHC8gEA/3lRHAgR6BXQnQOALAYH+BYq3CBAgQIDAagICfbWNmZcAgV4B3QksKiDQF12csQkQIECAwJ8CAv1PDT8TIECgV0B3Am0CAr2NVmMCBAgQIDBOQKCPs3YnAgQI9ArovrWAQN96/Q5PgAABAlcRGB7oyVzPwk1q83Q/i7i7f9J73qTWP6nVV//iJb39q/N077c6T3f9bOedbZ6q/8nzV8d9uz6p/f2t+nTXvw1QbDA80IvzKSdAgAABAgSeEBDoTyApIUCAAIFmAe3fFhDobxNqQIAAAQIEzhcQ6OfvwAQECBAg0CuwRXeBvsWaHZIAAQIEri4g0K++YecjQIAAgV6BSboL9EkWYQwCBAgQIPCOgEB/R89nCRAgQIBAr8DT3QX601QKCRAgQIDAvAICfd7dmIwAAQIECDwt8FKgP91dIQECBAgQIDBEYHigV5+dm8z1LN+kNk91i0mtf9WzOk+1vjpPtb57nmr/pLavpFZfnada3+2fzHXeZO15ktr81f0mtf7V71t3fdI7f9Lb/12f4YH+/cAqCBAgQIAAgaqAQK+KqSdAgAABAhMKbBfoE+7ASAQIECBA4G0Bgf42oQYECBAgQOB8AYF+6A40I0CAAAEC5wgI9HPc3ZUAAQIECBwqINAP5extpjsBAgQIELgnINDvyXifAAECBAgsJCDQF1pW76i6EyBAgMDKAgJ95e2ZnQABAgQI/Csg0P+F8EevgO4ECBAg0CswPNCT3mfhJrX+Sa2+O/7VmwAAEABJREFUuo7qs5Sr9d3zVPtX65Ne/+o81frufSVz+SS1ebp9uveV1M5bnada3+1Z7V+tT+bynM2/Os9t/fBAvx3AawLvC+hAgAABAgLdd4AAAQIECFxAQKBfYImO0CugOwECBFYQEOgrbMmMBAgQIEDgGwGB/g2QywR6BXQnQIDAMQIC/RhHXQgQIECAwKkCAv1Ufjcn0CugOwEC+wgI9H127aQECBAgcGEBgX7h5ToagV4B3QkQmElAoM+0DbMQIECAAIEXBQT6i3A+RoBAr4DuBAjUBKYP9OqzgmvHr1dX50lqzy5O1q6vis7m2T1PtX/Vs1qf1L5v1f7V+tl8uufp7l/1766vnrda3z3/7P2nD/TZAc1HgMCKAmYmcD0BgX69nToRAQIECGwoINA3XLojEyDQK6A7gTMEBPoZ6u5JgAABAgQOFhDoB4NqR4AAgV4B3Ql8LSDQv3bxLgECBAgQWEpAoC+1LsMSIECgV0D3dQUE+rq7MzkBAgQIEPglINB/UfiBAAECBHoFdO8UEOidunoTIECAAIFBAgJ9ELTbECBAgECvwO7dhwf66s/mTXqffd3t090/qfkktfru+av/IFTnSWrnrc6T9Pavnrc6v/rHAknvfh/f/f2ryVzzJ7V5klr9+2K1DsMDvTaeagIECBAgMIPA/DMI9Pl3ZEICBAgQIPCtgED/lkgBAQIECBDoFTiiu0A/QlEPAgQIECBwsoBAP3kBbk+AAAECBI4QuB/oR3TXgwABAgQIEBgiINCHMLsJAQIECBDoFTgr0HtPpTsBAgQIENhMQKBvtnDHJUCAAIFrClwz0K+5K6ciQIAAAQJ3BQT6XRoXCBAgQIDAOgLDAz2pPQs3qdVX6avPpv758+ePzs8ktfNWZ6n6zFaf9Poktf5JrX42z+7vT7K2T3Vf3Z7d/ZPefVXnT2rzVPvPtt/qPLf1wwP9dgCvCRAgQIAAgfcFBPr7hsd20I0AAQIECLwgINBfQPMRAgQIECAwm4BAn20jvfPoToAAAQIXFRDoF12sYxEgQIDAXgICfa99955WdwIECBA4TUCgn0bvxgQIECBA4DgBgX6cpU69AroTIECAwAMBgf4AxyUCBAgQILCKgEBfZVPm7BXQnQABAosLCPTFF2h8AgQIECDwl4BA/0uh8VfS+yzipNa/8ah/t179WcrV+Z+s//X8/7+RCr9V+1frk7m+P0ltnqRWX6B/qTSpzZPU6qtDJXP1T3rnqfpcrV6gX22jzkOAAAECWwoI9C3X7tCXEnAYAgQI/E9AoP8Pwf8ECBAgQGB1AYG++gbNT6BXQHcCBBYREOiLLMqYBAgQIEDgkYBAf6TjGgECvQK6EyBwmIBAP4xSIwIECBAgcJ6AQD/P3p0JEOgV0J3AVgICfat1OywBAgQIXFVAoF91s85FgECvgO4EJhMQ6JMtxDgECBAgQOAVge0DPel9tvBsz9ZOes+b9PZ/5Ute+Uyy1/zd389q/8qu/qqt9k+W2e9fx/v0K6nNX/Wp1n8a8Js3uvt/c/tPl6vzJDX/TzdsfmP7QG/21Z4AAQIECAwREOhDmN2EAAECEwkY5ZICAv2Sa3UoAgQIENhNQKDvtnHnJUCAQK+A7icJCPST4N2WAAECBAgcKSDQj9TUiwABAgR6BXS/KyDQ79K4QIAAAQIE1hEQ6OvsyqQECBAg0CuwdHeBvvT6DE+AAAECBP4REOj/OPidAAECBAj0CjR3F+jNwNoTIECAAIERAsMDvfrs3Nnqk95n+VbPO+JLUrnHbPMntX1V5096+1fsX6lNavNX75HU+lf9q/NU65O95q/6dO+ru/9s563Oc1P/Y3ig3w7gNQECBAgQIPC+gEB/31AHAgQIECBwukBroJ9+OgMQIECAAIFNBAT6Jot2TAIECBC4tsDCgX7txTgdAQIECBCoCAj0ipZaAgQIECAwqYBAv7MYbxMgQIAAgZUEBPpK2zIrAQIECBC4IyDQ78D0vq07AQIECBA4VkCgH+upGwECBAgQOEVAoJ/C3ntT3QkQIEBgP4HhgZ7Uno1cXUlS65/U6qvPFk5q/ZNafXWequds/ZNen2Su/tV9Vetn2291/qS2r2r/qk9Sm6fav7u+6pPUzrt6/6T3vFWf2/rhgX47gNerCZiXAAECBGYUEOgzbsVMBAgQIECgKCDQi2DKewV0J0CAAIHXBAT6a24+RYAAAQIEphIQ6FOtwzC9AroTIEDgugIC/bq7dTICBAgQ2EhAoG+0bEftFdCdAAECZwoI9DP13ZsAAQIECBwkINAPgtSGQK+A7gQIEHgsINAf+7hKgAABAgSWEBDoS6zJkAR6BXQnQGB9geGBXn0WcZW4u3/3PN3zV/sntWcXJ7X6qqf6xwLV/T7u9v7VpPZ9SGr11Qln86nOn/T6VOepeia1+av9u+ev9h9dPzzQRx/Q/QgQOFvA/QkQGCEg0EcouwcBAgQIEGgWEOjNwNoTINAroDsBAv8ICPR/HPxOgAABAgSWFhDoS6/P8AQI9AroTmAdAYG+zq5MSoAAAQIE7goI9Ls0LhAgQKBXQHcCRwoI9CM19SJAgAABAicJCPST4N2WAAECvQK67yYg0HfbuPMSIECAwCUFBPol1+pQBAgQ6BXQfT6B4YGe1J7lm/TWz7aSxHmT+wbVfSX3eyWfr3U/O7p7/uTzmZL771XnqdZ3e1b7J/ctks/XZjtvdZ5qffLZILn/XrV/dV/V/sn9WZPP16r9Z68fHuizg5iPAAECBM4WcP9XBAT6K2o+Q4AAAQIEJhMQ6JMtxDgECBAg0Ctw1e4C/aqbdS4CBAgQ2EpAoG+1boclQIAAgV6B87oL9PPs3ZkAAQIECBwmINAPo9SIAAECBAj0CjzqLtAf6bhGgAABAgQWERDoiyzKmAQIECBA4JHA+4H+qLtrBAgQIECAwBABgT6E2U0IECBAgECvwPBALz7Lt/f0A7onn58fnNx/r+pTre8+cnWe2eqT+7tJPl+bzbM6T/L5TMn996r7qs7TXV+dP7lvkYy/NptPdZ6kZlbt373f6jyj64cH+ugDuh8BAgQIENhBYO9A32HDzkiAAAECWwgI9C3W7JAECBAgcHUBgd63YZ0JECBAgMAwAYE+jNqNCBAgQIBAn4BA77Pt7aw7AQIECBD4Q0Cg/4HhRwIECBAgsKqAQF91c71z606AAAECiwkI9MUWZlwCBAgQIPCVgED/SsV7vQK6EyBAgMDhAgL9cFINCRAgQIDAeIHhgZ7M9Szf6rN/u1eU1HySWn33/NX+yeHzfxghmat/9fuW9M7/AWuCF1Wf6shJzbN7nu7+Se28SW99976S2vzVebr3VZ3ntn54oN8O4DUBAgQIECDwvoBAf99Qh50EnJUAAQKTCgj0SRdjLAIECBAgUBEQ6BUttQR6BXQnQIDAywIC/WU6HyRAgAABAvMICPR5dmESAr0CuhMgcGkBgX7p9TocAQIECOwiINB32bRzEugV0J0AgZMFBPrJC3B7AgQIECBwhIBAP0JRDwIEegV0J0DgWwGB/i2RAgIECBAgML/A8ECvPgu3Wj8beXX+7vqqT3We7v5J77OaZ5u/27963u765JT9Hnas6r6S3vNW5+mur0JX56n2r9YnvfuqznNbPzzQbwfwmgABAgQIEHhfQKC/b6gDAQIE7gu4QmCQgEAfBO02BAgQIECgU0Cgd+rqTYAAgV4B3Qn8EhDovyj8QIAAAQIE1hUQ6OvuzuQECBDoFdB9KQGBvtS6DEuAAAECBL4WEOhfu3iXAAECBHoFdD9YQKAfDKodAQIECBA4Q0Cgn6HungQIECDQK7Bhd4G+4dIdmQABAgSuJzA80JPas3AT9cl9g+6vZHL/3sn4a9Xzdj8LOqkZVOev1lfPW61Pes9bnafbJ6mdN6nVd5+36pPU5q/2r9YntXkGelaPMqR+eKAPOZWbECBAgACBzQQE+mYLd1wCBAgQmFzgxfEE+otwPkaAAAECBGYSEOgzbcMsBAgQIEDgRYEnA/3F7j5GgAABAgQIDBEQ6EOY3YQAAQIECPQKTBHovUfUnQABAgQIXF9AoF9/x05IgAABAhsIbBDoG2zREQkQIEBgewGBvv1XAAABAgQIXEFAoL+5RR8nQIAAAQIzCEwf6NVn865e3/2lSNZ+NnJ1v0ntvFX/6jzV/klt/qRWX52nWp/0zpP09p9tv1X/an33ebvnSWrfh9nOW/W5rZ8+0G8H3uu10xIgQIAAgecEBPpzTqoIECBAgMDUAgJ96vX0Dqc7AQIECFxHQKBfZ5dOQoAAAQIbCwj0jZffe3TdCRAgQGCkgEAfqe1eBAgQIECgSUCgN8Fq2yugOwECBAh8FBDoHz28IkCAAAECSwoI9CXXZuheAd0JECCwnoBAX29nJiZAgAABAp8EBPonEm8Q6BXQnQABAh0Clwv0pPYs36S3vmNpO/dMavuqPqu5Wp/U5qnurjpPtT6Za/5un6T3vNX5u+uT2nmT3vrqeZPaPLN9/6vnfbf+coH+LojPE1hbwPQECOwqINB33bxzEyBAgMClBAT6pdbpMAR6BXQnQGBeAYE+725MRoAAAQIEnhYQ6E9TKSRAoFdAdwIE3hEQ6O/o+SwBAgQIEJhEQKBPsghjECDQK6A7gasLCPSrb9j5CBAgQGALAYG+xZodkgCBXgHdCZwvINDP34EJCBAgQIDA2wIC/W1CDQgQINAroDuBZwQE+jNKF6qpPuu4++jd8yS1Z0Entfrq/NV6/rV9JI/rZ/Ps/j7M1r97nuTx/pOP17vn6f6+3fYX6LciXhMgQGArAYe9ioBAv8omnYMAAQIEthYQ6Fuv3+EJECDQK6D7OAGBPs7anQgQIECAQJuAQG+j1ZgAAQIEegV0/1NAoP+p4WcCBAgQILCogEBfdHHGJkCAAIFegdW6C/TVNmZeAgQIECDwhYBA/wLFWwQIECBAoFfg+O4C/XhTHQkQIECAwHABgT6c3A0JECBAgMDxAn8G+vHddVxeIPn47OPk8evVD9z9bOfksV/y8XrVM/n4+eTx62r/an23Z3f/6nmTx97Jx+vV/t313Z7Jx/Mnj19Xz9s9f3We0fUCfbS4+xEgQIAAgQaBcYHeMLyWBAgQIECAwD8CAv0fB78TIECAAIGlBa4S6EsvwfAECBAgQOBdAYH+rqDPEyBAgACBCQQE+jNLUEOAAAECBCYXEOiTL8h4BAgQIEDgGQGB/oxSb43uBAgQIEDgbQGB/jahBgQIECBA4HwBgX7+Dnon0J0AAQIEthAQ6Fus2SEJECBA4OoClwv06rN8u+tX/wJ94/Pj9nr1vMnjZzknH69X+1frk4/3Sx6/rvafrT55fL7k4/XbfX/3uvu8ycf5ksevv5v39nryuF/y8Xr3eW/n++51dZ7k43mSY19/N+/t9er8u9dfLtB3X6jzEyBAgMCeAgJ9z72vcWpTEiBAgMDTAgL9aSqFBJt7zWQAAAMRSURBVAgQIEBgXgGBPu9uTNYroDsBAgQuJSDQL7VOhyFAgACBXQUE+q6bd+5eAd0JECAwWECgDwZ3OwIECBAg0CEg0DtU9STQK6A7AQIEPgkI9E8k3iBAgAABAusJCPT1dmZiAr0CuhMgsKSAQF9ybYYmQIAAAQIfBaYP9OTYZwknc/f7uJ7jXyW18x8/wdiOt8+G/u5193Tf3f/2evc81f7J29+f6i1Prb/dx3evq8Mme3lWfb7zvr2e1DyTWn11/tH10wf6aBD3I0CAAAECKwoI9BW3ZmYCBL4W8C6BjQUE+sbLd3QCBAgQuI6AQL/OLp2EAIFeAd0JTC0g0Kdej+EIECBAgMBzAgL9OSdVBAgQ6BXQncCbAgL9TUAfJ0CAAAECMwgI9Bm2YAYCBAj0Cui+gYBA32DJjkiAAAEC1xcQ6NffsRMSIECgV0D3KQQE+hRrMAQBAgQIEHhPYHig3z571+ufP94xqK6/eq/u/tV5qvXd81f7d9dXfbrrq+edbR7zv/fv0+0+q57/1j/9x+39zn799OAHFQ4P9IPm1oYAAQIECBD4Q0Cg/4HhRwIECBDYTOBCxxXoF1qmoxAgQIDAvgICfd/dOzkBAgQI9AoM7S7Qh3K7GQECBAgQ6BEQ6D2uuhIgQIAAgV6Bm+4C/QbESwIECBAgsKKAQF9xa2YmQIAAAQI3AgcH+k13LwkQIECAAIEhAgJ9CLObECBAgACBXoGlAr2XQncCBAgQILCugEBfd3cmJ0CAAAECvwQE+i8KPxAgQIAAgXUFBPq6uzM5AQIECBD4JSDQf1H0/qA7AQIECBDoFBDonbp6EyBAgACBQQICfRB07210J0CAAIHdBQT67t8A5ydAgACBSwgI9EussfcQuhMgQIDA/AICff4dmZAAAQIECHwrINC/JVLQK6A7AQIECBwhINCPUNSDAAECBAicLCDQT16A2/cK6E6AAIFdBAT6Lpt2TgIECBC4tIBAv/R6Ha5XQHcCBAjMIyDQ59mFSQgQIECAwMsCAv1lOh8k0CugOwECBCoC/w8AAP//ddrjKAAAAAZJREFUAwAwyHNwjeIPPgAAAABJRU5ErkJggg==" alt="賓果卡 QR Code">
+                    <div class="qr-caption">👈 掃描我！獲取專屬賓果卡！</div>
+                </div>
+
+                <!-- 範例圖區塊 -->
+                <div class="svg-container">
+                    <svg viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="250" height="250" fill="#fff" rx="2" stroke="#2b2b2b" stroke-width="4"/>
+                        
+                        <g stroke="#2b2b2b" stroke-width="1.5">
+                            <line x1="50" y1="0" x2="50" y2="250" />
+                            <line x1="100" y1="0" x2="100" y2="250" />
+                            <line x1="150" y1="0" x2="150" y2="250" />
+                            <line x1="200" y1="0" x2="200" y2="250" />
+                            
+                            <line x1="0" y1="50" x2="250" y2="50" />
+                            <line x1="0" y1="100" x2="250" y2="100" />
+                            <line x1="0" y1="150" x2="250" y2="150" />
+                            <line x1="0" y1="200" x2="250" y2="200" />
+                        </g>
+
+                        <g fill="#fbe9ea" stroke="#d9333f" stroke-width="3">
+                            <!-- 第一條線：橫線 (第2列) -->
+                            <circle cx="25" cy="75" r="16"/>
+                            <circle cx="75" cy="75" r="16"/>
+                            <circle cx="125" cy="75" r="16"/>
+                            <circle cx="175" cy="75" r="16"/>
+                            <circle cx="225" cy="75" r="16"/>
+
+                            <!-- 第二條線：直線 (第4行) -->
+                            <circle cx="175" cy="25" r="16"/>
+                            <circle cx="175" cy="125" r="16"/>
+                            <circle cx="175" cy="175" r="16"/>
+                            <circle cx="175" cy="225" r="16"/>
+                        </g>
+
+                        <g stroke="#d9333f" stroke-width="8" stroke-linecap="round" opacity="0.9">
+                            <line x1="15" y1="75" x2="235" y2="75" stroke-dasharray="230" stroke-dashoffset="0"/>
+                            <line x1="175" y1="15" x2="175" y2="235" stroke-dasharray="230" stroke-dashoffset="0"/>
+                        </g>
+                    </svg>
+                    <div class="svg-caption">【2條連線完成範例】</div>
+                </div>
+            </div>
+        </div>
+        <button class="magazine-btn" onclick="startGame()">我知道了，遊戲開始！</button>
+    </div>
+
+    <div id="game-screen">
+        <div class="magazine-layout-box">
+            <div id="number-display-container">
+                <div id="number-placeholder">??</div>
+                <div id="number-display"></div>
+            </div>
+            
+            <div id="text-display-box">
+                <div id="text-display">準備好抽第一個數字了嗎？</div>
+            </div>
+            
+            <button id="draw-btn" class="magazine-btn" onclick="drawNumber()">抽下一號！NEXT</button>
+
+            <div id="history">
+                <div id="history-title">已出現過的幸運號碼</div>
+                <span id="history-list">尚未開始</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切換畫面函數
+        function startGame() {
+            document.getElementById('rules-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+        }
+
+        // 在這裡設定每個數字對應的文字
+        const bingoData = {
+            1: "【哲瑋出題】看過哲瑋亂糟糟頭髮的朋友，請把1號畫圈～",
+            2: "【恩寧出題】請和同桌朋友一起舉杯後，把2號畫圈！",
+            3: "【哲瑋出題】（最近三星手機壞掉@@）同樣拿三星手機的朋友，請把3號畫圈！",
+            4: "【哲瑋出題】剛剛有喝到婚禮調酒的朋友，請把4號畫圈～",
+            5: "【恩寧出題】有跟恩寧一起吃過飯的朋友（包含今天的喜酒）>.^，把5號畫圈！",
+            6: "【恩寧出題】有去過嘉義並吃到道地雞肉飯（噴水雞肉飯不算= =）的朋友，把6號畫圈！",
+            7: "【哲瑋出題】請在心裡默默想哲瑋的一個優點以後，把7號畫圈～",
+            8: "【恩寧出題】今天有拍下美麗恩寧或帥氣哲瑋的朋友，請把8號畫圈（並把照片傳給哲瑋／恩寧，拜偷~~）！",
+            9: "【哲瑋出題】比起狗來更喜歡貓的朋友，請把9號畫圈！（喵～）",
+            10: "【哲瑋出題】曾經被哲瑋忘東忘西的個性影響過的朋友，請把10號畫圈（同時哲瑋向您鞠躬> <）",
+            11: "【恩寧出題】最近有看世界盃足球賽的球友，把11號畫圈！",
+            12: "【恩寧出題】今年有看到櫻花的朋友，把12號畫圈！",
+            13: "【哲瑋出題】曾經翻閱「朝朝暮暮的起點」（包括電子版），請把13號畫圈～（沒有看過的話一生推！XDDDDDD）",
+            14: "【恩寧出題】交往前聽過恩寧提起哲瑋的朋友，請把14號畫圈！",
+            15: "【哲瑋出題】覺得剛剛新人跳舞頗有魅力的朋友，請把15號畫圈！",
+            16: "【哲瑋出題】知道新人怎麼認識的朋友（剛剛有在影片中看到也算），請把16號畫圈～",
+            17: "【恩寧出題】跟同桌的朋友一起分享今天最好吃的一道菜後，把17號畫圈！",
+            18: "【恩寧出題】今天有拿新人謝卡的朋友，請把18號畫圈！",
+            19: "【哲瑋出題】喝過哲瑋親手調製的飲料或沖泡的咖啡的朋友，請把19號畫圈(乾杯！)",
+            20: "【恩寧出題】有玩皮克敏的皮友們，一起讓世界充滿花朵吧！（並把20號畫圈~~）",
+            21: "此格最幸運！這格直接送大家！請把21號畫圈！",
+            22: "【哲瑋出題】聽過哲瑋提起多喜歡恩寧的朋友，請把22號畫圈～",
+            23: "【恩寧出題】今日有打到皮克敏蘑菇的皮友（新竹／臺北好難搶菇哇），請圈起23號！",
+            24: "此格也超級幸運！這格直接送大家！請把24號畫圈！",
+            25: "此格最厲害！這格直接送大家！請把25號畫圈！",
+
+            /* =====================================
+               以下為恩寧與哲瑋追加的 28 題，與 22 個幸運空缺
+               ===================================== */
+               
+            26: "【恩寧出題】今天有吃到花好月圓（沒吃到炸湯圓好像沒參加婚宴）的朋友，請圈起26號！",
+            27: "【恩寧出題】今天有搭乘大眾交通工具的朋友，請圈起27號！",
+            28: "幸運數字降臨！快看看手上有沒有 28 號，祝您發發發！",
+            29: "【恩寧出題】覺得這場婚禮辦得很用心的朋友，請圈29號（謝謝～）",
+            30: "這格是幸運空包彈！有 30 號的朋友請大方圈起來！",
+            31: "【恩寧出題】已經把桌上婚禮小物打開來看的朋友，請圈31號（希望大家會喜歡）",
+            32: "【恩寧出題】今天穿藍色系的朋友，請圈32號（跟新娘二進禮服一樣呢！）",
+            33: "好事成雙，幸運加倍！快把 33 號圈起來吧！",
+            34: "【恩寧出題】有去過廣島旅行的朋友，請圈34號（新人很愛尾道小鎮）",
+            35: "【恩寧出題】出國旅行時，曾經不小心丟過錢包或護照的朋友，請圈35號（您跟某人一樣）",
+            36: "六六大順！抽中 36 號的幸運兒就是你，快圈起來！",
+            37: "緣分就是這麼奇妙，37 號出現啦！請畫圈～",
+            38: "【恩寧出題】昨天晚上超過12點睡覺的朋友，請圈38號（是不是和新人一樣太興奮啦～）",
+            39: "【恩寧出題】今天從外縣市來到新竹的朋友，請圈39號（同時感謝您大老遠跑一趟）",
+            40: "好日子大吉大利，恭喜抽中 40 號！",
+            41: "【恩寧出題】新竹本地的朋友！尖叫聲！再動動手指圈41號～",
+            42: "【恩寧出題】曾因睡前躺在床上滑手機被砸到臉的朋友，請圈42號（好痛@@）",
+            43: "幸運之神微笑啦！有 43 號的朋友快動動您的手指畫圈！",
+            44: "事事如意！快把手上的 44 號圈起來！",
+            45: "【恩寧出題】出國旅行時，曾經寄過明信片（皮克敏的也可！）的朋友，請圈45號～",
+            46: "【恩寧出題】用電腦打字可以不看鍵盤盲打的朋友，請圈46號（向辛苦的書記官們致敬！）",
+            47: "這是一個充滿愛與祝福的數字！請將 47 號畫圈！",
+            48: "【恩寧出題】曾經在日本神社買過御守的朋友，請圈48號（是不是覺得很有質感～）",
+            49: "長長久久！抽中 49 號的朋友，祝您幸福久久！",
+            
+            50: "【哲瑋出題】有成功把車停進國賓地下室的朋友（聽說位置不太好搶> <），請收下我的膝蓋，並圈起50號！",
+            51: "【哲瑋出題】最近一年去過日本的朋友，歡迎跟新郎／新娘分享行程，並圈起51號～",
+            52: "我愛你！充滿粉紅泡泡的 52 號，快圈起來！",
+            53: "【哲瑋出題】喜歡婚禮音樂的朋友，您是哲瑋的知音！請圈起53號。",
+            54: "【哲瑋出題】討厭吃香菜的朋友，您懂哲瑋～請圈起54號。",
+            55: "因為新郎是 55 期的，55 號直接送給大家！",
+            56: "幸運爆棚！這格沒有任務，有 56 號的直接圈起來！",
+            57: "【哲瑋出題】愛吃西瓜的朋友，夏天就是要吃西瓜哇！請圈57號～",
+            58: "【哲瑋出題】先前曾造訪過新竹的朋友，請圈起58號！（新竹真是個好地方哇）",
+            59: "因為新娘是 59 期的，59 號直接大‧放‧送！",
+            60: "【哲瑋出題】曾有遠距離戀愛經驗的朋友，請圈起60號（恩寧我們辛苦了> <）",
+            61: "【哲瑋出題】有看過「黑白大廚」的朋友，請圈61號～（新人很喜歡一起看競賽型節目）",
+            62: "順順利利！有 62 號的朋友，趕快把它圈起來！",
+            63: "【哲瑋出題】請心裡默念「新郎好帥」後，圈起63號！（哲瑋感謝您的稱讚）",
+            64: "【哲瑋出題】請默念三次「一定要幸福喔！」圈起64號～",
+            65: "幸福美滿！抽中 65 號的幸運兒，距離賓果又近一步啦！",
+            66: "【哲瑋出題】會自己手沖咖啡的朋友，請圈66號！",
+            67: "【哲瑋出題】現在手機螢幕上顯示Line未讀訊息超過999+以上的朋友，請圈67號（您跟哲瑋一樣@@）",
+            68: "一路發發發！拿到 68 號的朋友千萬別漏掉！",
+            69: "【哲瑋出題】辦公桌上有擺娃娃的朋友，請圈69號（娃娃超紓壓～）",
+            70: "【哲瑋出題】跟哲瑋一樣愛吃甜食的朋友，請圈70號！",
+
+            71: "幸運倒數！71 號出現了，快看看有沒有連線！",
+            72: "歡樂時光！這格送給有 72 號的幸運朋友！",
+            73: "驚喜就在眼前！快把手邊的 73 號畫上幸運的大圈！",
+            74: "好事將近！有 74 號的朋友，幸運馬上就來！",
+            75: "壓軸好運！抽中 75 號的朋友，祝你今天順心如意！"
+        };
+
+        // 預設文字設定 (若真的有遺漏的號碼，將會顯示這段)
+        const defaultText = "恭喜抽中！請確認手上的賓果卡喔！祝您好運！";
+
+        // 產生 1 到 75 的陣列
+        let availableNumbers = Array.from({length: 75}, (_, i) => i + 1);
+        let drawnNumbers = [];
+
+        // 洗牌函數（確保隨機順序）
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        shuffle(availableNumbers);
+
+        function drawNumber() {
+            if (availableNumbers.length === 0) {
+                document.getElementById("text-display").innerText = "所有號碼都已經抽完囉！感謝大家參與！";
+                return;
+            }
+
+            // 隱藏 placeholder
+            document.getElementById("number-placeholder").style.display = "none";
+
+            // 移出舊動畫類別並強制重繪（以重新觸發動畫）
+            const numDisplay = document.getElementById("number-display");
+            numDisplay.classList.remove("pop-in");
+            void numDisplay.offsetWidth; // 強制重繪
+
+            // 抽出一個號碼
+            const currentNumber = availableNumbers.pop();
+            drawnNumbers.push(currentNumber);
+
+            // 更新畫面顯示數字並加入動畫類別
+            numDisplay.innerText = currentNumber;
+            numDisplay.classList.add("pop-in");
+
+            // 判斷是否有自訂文字，沒有則顯示預設文字
+            const displayText = bingoData[currentNumber] || defaultText;
+            document.getElementById("text-display").innerText = displayText;
+
+            // 更新歷史紀錄
+            document.getElementById("history-list").innerText = drawnNumbers.join(", ");
+
+            // 抽完時停用按鈕
+            if (availableNumbers.length === 0) {
+                const btn = document.getElementById("draw-btn");
+                btn.innerText = "遊戲結束";
+                btn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
